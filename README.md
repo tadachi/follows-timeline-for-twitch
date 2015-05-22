@@ -1,4 +1,4 @@
-# get-going
+# follows-timeline-for-twitch
 
 My personal template that contains most of the frameworks I use for my own projects.
 

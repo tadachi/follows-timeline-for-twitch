@@ -1,5 +1,5 @@
 {
-  "name": "get-going",
+  "name": "follows-timeline-for-twitch",
   "description": "Develop against this server.",
   "main": "./dev-server.js",
   "private": true,
