@@ -57,45 +57,45 @@
         {
             "headline":"{username}'s Twitch Follows Timeline".format({username: "tak_ada"}),
             "type":"default",
-            "text":"<p>Following {count} People</p>".format({count: 236}),
+            "text":"<p>Following {user_follow_count} People</p>".format({user_follow_count: 236}),
             "asset": {
-                "media":"http://static-cdn.jtvnw.net/jtv_user_pictures/tak_ada-profile_image-bbb30569f577053f-300x300.jpeg",
+                "media":"{user_logo}".format({user_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/tak_ada-profile_image-bbb30569f577053f-300x300.jpeg"}),
                 "credit":"",
-                "caption":"Account created on <b>{creation_date}</b>".format({creation_date: "2014-05-10"})
+                "caption":"Account created on <b>{user_creation_date}</b>".format({user_creation_date: "2014-05-10"})
             },
             "date": [
                 {
-                    "startDate":"2014,05,16",
-                    "endDate":"2014,05,16",
-                    "headline":"{twitch_streamer}".format({twitch_streamer: "Nevuitz"}),
-                    "text":"<a href=\"{url}\">{url}</a>".format({url: "http://www.twitch.tv/neviutz"}),
+                    "startDate":"{stream_follow_date}".format({stream_follow_date: "2014,05,16"}),
+                    "endDate":"{stream_follow_date}".format({stream_follow_date: "2014,05,16"}),
+                    "headline":"{twitch_streamer_name}".format({twitch_streamer_name: "Nevuitz"}),
+                    "text":"<b><a href=\"{stream_url}\">{stream_url}</a></b><br />Last Played: <b>{stream_last_played}</b><br />Follower Count: <b>{follower_count}</b>".format({stream_url: "http://www.twitch.tv/neviutz", stream_last_played: "Persona 3", follower_count: 3000}),
                     "tag":"", // This is optional.
                     "classname":"", // This is optional.
                     "asset": {
-                        "media":"http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg",
-                        "thumbnail":"http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg",
-                        "credit":"Followed on <b>{date}</b>".format({date: "2014-05-10"}), // This is not needed.
+                        "media":"{stream_logo}".format({stream_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg"}),
+                        "thumbnail":"{stream_logo}".format({stream_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg"}),
+                        "credit":"Followed on <b>{stream_follow_date}</b>".format({stream_follow_date: "2014-05-10"}), // This is not needed.
                         "caption":"" // This is not needed.
                     }
                 },
                 {
-                    "startDate":"2014,07,16",
-                    "endDate":"2014,07,16",
-                    "headline":"{twitch_streamer}".format({twitch_streamer: "Nevuitz"}),
-                    "text":"<a href=\"{url}\">{url}</a>".format({url: "http://www.twitch.tv/neviutz"}),
+                    "startDate":"{stream_follow_date}".format({stream_follow_date: "2014,05,17"}),
+                    "endDate":"{stream_follow_date}".format({stream_follow_date: "2014,05,17"}),
+                    "headline":"{twitch_streamer_name}".format({twitch_streamer_name: "Nevuitz"}),
+                    "text":"<b><a href=\"{stream_url}\">{stream_url}</a></b><br />Last Played: <b>{stream_last_played}</b><br />Follower Count: <b>{follower_count}</b>".format({stream_url: "http://www.twitch.tv/neviutz", stream_last_played: "Persona 3", follower_count: 3000}),
                     "tag":"", // This is optional.
                     "classname":"", // This is optional.
                     "asset": {
-                        "media":"http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg",
-                        "thumbnail":"http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg",
-                        "credit":"Followed on <b>{date}</b>".format({date: "2014-05-10"}), // This is not needed.
+                        "media":"{stream_logo}".format({stream_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg"}),
+                        "thumbnail":"{stream_logo}".format({stream_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg"}),
+                        "credit":"Followed on <b>{stream_follow_date}</b>".format({stream_follow_date: "2014-05-10"}), // This is not needed.
                         "caption":"" // This is not needed.
                     }
-                },
+                }
             ]
 
         }
-    }
+    };
 
 
     $(document).ready(function() {
@@ -110,18 +110,44 @@
 
     var app = angular.module("App", []);
     app.controller("Ctrl", function($scope, $http) {
-        $scope.url1 = "https://api.twitch.tv/kraken/users/tak_ada/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
-        $scope.url2 = "https://api.twitch.tv/kraken/channels/tak_ada/?callback=JSON_CALLBACK";
+        $scope.url1 = "https://api.twitch.tv/kraken/channels/tak_ada/?callback=JSON_CALLBACK";
+        $scope.url2 = "https://api.twitch.tv/kraken/users/tak_ada/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
+
         $http.jsonp($scope.url1).
-            success(function(data){
-                    console.log(data);
-                    var date = new Date(data.follows[0].created_at);
-                    console.log(date.getFullYear())
-            });
-        $http.jsonp($scope.url2).
                 success(function(data){
                     console.log(data);
                 });
+        $http.jsonp($scope.url2).
+                success(function(data){
+                    console.log(data);
+                    var date = new Date(data.follows[0].created_at);
+                    console.log(date.getFullYear());
+                    console.log($scope.isoDateToTimelineDate(data.follows[0].created_at));
+                });
+
+        /**
+         * input: "2014-05-16T08:01:41Z"
+         * output: "2014,05,16"
+         *
+         * @param isoStringDate
+         * @returns {string}
+         */
+        $scope.isoDateToTimelineDate = function(isoStringDate) {
+            tempDate = new Date(isoStringDate);
+            return tempDate.getFullYear() + "," + tempDate.getMonth() + "," + tempDate.getDay();
+        };
+
+        /**
+         * Example inputs:
+         * url1: "https://api.twitch.tv/kraken/channels/tak_ada/?callback=JSON_CALLBACK"
+         * ir;2: "https://api.twitch.tv/kraken/users/tak_ada/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK"
+         *
+         * @param url1
+         * @param url2
+         */
+        $scope.twitchJsonToTimelineJson = function(url1, url2) {
+
+        };
     });
 
 
