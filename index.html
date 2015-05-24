@@ -9,12 +9,18 @@
     <meta name='author' content='takada'>
 
     <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
-    <!-- Misc JS Libs -->
-    <script src='js/timeline-min.js'></script> <!-- Combined with Jquery, it's used together for asynchronous REST calls. -->
+    <link href="css/main.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <!-- Jquery -->
+    <script src='js/jquery.min.js'></script>
     <!-- AngularJS -->
-    <script src='js/angular/angular.min.js'></script>
-    <!-- srlplayer2.js must come after AngularJS and JQuery -->
+    <script src='js/angular.min.js'></script>
+    <!-- Bootstrap -->
+    <script src='js/bootstrap.min.js'></script>
+    <!-- Misc JS Libs -->
+    <script src='js/timeline-min.js'></script>
+    <script src='js/storyjs-embed.js'></script>
+    <!-- follows-timeline-for-twitch.js must come after AngularJS and JQuery -->
     <script src='js/follows-timeline-for-twitch.js'></script>
     <!-- Google Analytics -->
     <script>
@@ -28,8 +34,104 @@
     </script>
 
 </head>
+<script>
+    /**
+     * Similar to what you find in Java"s format.
+     * Usage: chatsrc = "http://twitch.tv/chat/embed?channel={channel}&amp;popout_chat=true".format({ channel: streamer});
+     */
+    if (!String.prototype.format) {
+        String.prototype.format = function() {
+            var str = this.toString();
+            if (!arguments.length)
+                return str;
+            var args = typeof arguments[0],
+                    args = (("string" == args || "number" == args) ? arguments : arguments[0]);
+            for (arg in args)
+                str = str.replace(RegExp('\\{' + arg + '\\}', 'gi'), args[arg]);
+            return str;
+        }
+    }
 
-<body ng-app='follows-timeline-for-twitch'>
+    var timeline_json = {
+        "timeline":
+        {
+            "headline":"{username}'s Twitch Follows Timeline".format({username: "tak_ada"}),
+            "type":"default",
+            "text":"<p>Following {count} People</p>".format({count: 236}),
+            "asset": {
+                "media":"http://static-cdn.jtvnw.net/jtv_user_pictures/tak_ada-profile_image-bbb30569f577053f-300x300.jpeg",
+                "credit":"",
+                "caption":"Account created on <b>{creation_date}</b>".format({creation_date: "2014-05-10"})
+            },
+            "date": [
+                {
+                    "startDate":"2014,05,16",
+                    "endDate":"2014,05,16",
+                    "headline":"{twitch_streamer}".format({twitch_streamer: "Nevuitz"}),
+                    "text":"<a href=\"{url}\">{url}</a>".format({url: "http://www.twitch.tv/neviutz"}),
+                    "tag":"", // This is optional.
+                    "classname":"", // This is optional.
+                    "asset": {
+                        "media":"http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg",
+                        "thumbnail":"http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg",
+                        "credit":"Followed on <b>{date}</b>".format({date: "2014-05-10"}), // This is not needed.
+                        "caption":"" // This is not needed.
+                    }
+                },
+                {
+                    "startDate":"2014,07,16",
+                    "endDate":"2014,07,16",
+                    "headline":"{twitch_streamer}".format({twitch_streamer: "Nevuitz"}),
+                    "text":"<a href=\"{url}\">{url}</a>".format({url: "http://www.twitch.tv/neviutz"}),
+                    "tag":"", // This is optional.
+                    "classname":"", // This is optional.
+                    "asset": {
+                        "media":"http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg",
+                        "thumbnail":"http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg",
+                        "credit":"Followed on <b>{date}</b>".format({date: "2014-05-10"}), // This is not needed.
+                        "caption":"" // This is not needed.
+                    }
+                },
+            ]
+
+        }
+    }
+
+
+    $(document).ready(function() {
+        createStoryJS({
+            type:       "timeline",
+            width:      "1000",
+            height:     "400",
+            source:     timeline_json,
+            embed_id:   "timeline-embed"
+        });
+    });
+
+    var app = angular.module("App", []);
+    app.controller("Ctrl", function($scope, $http) {
+        $scope.url1 = "https://api.twitch.tv/kraken/users/tak_ada/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
+        $scope.url2 = "https://api.twitch.tv/kraken/channels/tak_ada/?callback=JSON_CALLBACK";
+        $http.jsonp($scope.url1).
+            success(function(data){
+                    console.log(data);
+                    var date = new Date(data.follows[0].created_at);
+                    console.log(date.getFullYear())
+            });
+        $http.jsonp($scope.url2).
+                success(function(data){
+                    console.log(data);
+                });
+    });
+
+
+</script>
+<body>
+    <div ng-app="App">
+        <div ng-controller="Ctrl">
+        </div>
+    </div>
+    <div id="timeline-embed"></div>
 
 </body>
 
