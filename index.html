@@ -54,56 +54,6 @@
         }
     }
 
-    var timeline_json = {
-        "timeline":
-        {
-            "headline":"{username}'s Twitch Follows Timeline".format({username: "Username"}),
-            "type":"default",
-            "text":"<p>Following {user_follow_count} People</p>".format({user_follow_count: 777}),
-            "asset": {
-                "media":"{user_logo}".format({user_logo: "https://s.jtvnw.net/jtv_user_pictures/hosted_images/GlitchIcon_WhiteonPurple.png"}),
-                "credit":"",
-                "caption":"Account created on <b>{user_creation_date}</b>".format({user_creation_date: "2014-05-10"})
-            },
-            "date": [
-                {
-                    "startDate":"{stream_follow_date}".format({stream_follow_date: "2014,05,16"}),
-                    "endDate":"{stream_follow_date}".format({stream_follow_date: "2014,05,16"}),
-                    "headline":"{twitch_streamer_name}".format({twitch_streamer_name: "Nevuitz"}),
-                    "text":"<b><a href=\"{stream_url}\">{stream_url}</a></b><br />Last Played: <b>{stream_last_played}</b><br />Follower Count: <b>{follower_count}</b>".format({stream_url: "http://www.twitch.tv/neviutz", stream_last_played: "Persona 3", follower_count: 3000}),
-                    "tag":"", // This is optional.
-                    "classname":"", // This is optional.
-                    "asset": {
-                        "media":"{stream_logo}".format({stream_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg"}),
-                        "thumbnail":"{stream_logo}".format({stream_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg"}),
-                        "credit":"Followed on <b>{stream_follow_date}</b>".format({stream_follow_date: "2014-05-10"}), // This is not needed.
-                        "caption":"" // This is not needed.
-                    }
-                },
-                {
-                    "startDate":"{stream_follow_date}".format({stream_follow_date: "2014,05,17"}),
-                    "endDate":"{stream_follow_date}".format({stream_follow_date: "2014,05,17"}),
-                    "headline":"{twitch_streamer_name}".format({twitch_streamer_name: "Nevuitz"}),
-                    "text":"<b><a href=\"{stream_url}\">{stream_url}</a></b><br />Last Played: <b>{stream_last_played}</b><br />Follower Count: <b>{follower_count}</b>".format({stream_url: "http://www.twitch.tv/neviutz", stream_last_played: "Persona 3", follower_count: 3000}),
-                    "tag":"", // This is optional.
-                    "classname":"", // This is optional.
-                    "asset": {
-                        "media":"{stream_logo}".format({stream_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg"}),
-                        "thumbnail":"{stream_logo}".format({stream_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/neviutz-profile_image-e8d8940d205d8a19-300x300.jpeg"}),
-                        "credit":"Followed on <b>{stream_follow_date}</b>".format({stream_follow_date: "2014-05-10"}), // This is not needed.
-                        "caption":"" // This is not needed.
-                    }
-                }
-            ]
-
-        }
-    };
-
-
-    $(document).ready(function() {
-
-    });
-
     var app = angular.module("App", []);
 
     app.service('asyncService', function($http, $q) {
@@ -135,20 +85,8 @@
     });
 
     app.controller("Ctrl", function($scope, $http, $q) {
-        $scope.url1 = "https://api.twitch.tv/kraken/channels/balticfish/?callback=JSON_CALLBACK";
-        $scope.url2 = "https://api.twitch.tv/kraken/users/balticfish/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
-
-//        $http.jsonp($scope.url1).
-//                success(function(data){
-//                    console.log(data);
-//                });
-//        $http.jsonp($scope.url2).
-//                success(function(data){
-//                    console.log(data);
-//                    var date = new Date(data.follows[0].created_at);
-//                    console.log(date.getFullYear());
-//                    console.log($scope.isoDateToTimelineDate(data.follows[0].created_at));
-//                });
+        $scope.url1 = "https://api.twitch.tv/kraken/channels/theclaude/?callback=JSON_CALLBACK";
+        $scope.url2 = "https://api.twitch.tv/kraken/users/theclaude/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
 
         $scope.createPromise = function(url) {
             var deferred = $q.defer();
@@ -238,9 +176,6 @@
                     stream_data.follower_count = json_data.follows[i].channel.followers;
                     stream_data.stream_logo = json_data.follows[i].channel.logo;
 
-
-//                    console.log(stream_data);
-
                     timeline_json.timeline.date.push(createTimelineDateJsonObject(stream_data));
                 }
 
@@ -292,6 +227,7 @@
 
         };
 
+        // Main
         $scope.twitchJsonToTimelineJson($scope.url1, $scope.url2);
     });
 
