@@ -17,11 +17,13 @@
     <script src='js/angular.min.js'></script>
     <!-- Bootstrap -->
     <script src='js/bootstrap.min.js'></script>
-    <!-- Misc JS Libs -->
+    <!-- TimelineJS -->
     <script src='js/timeline-min.js'></script>
     <script src='js/storyjs-embed.js'></script>
     <!-- follows-timeline-for-twitch.js must come after AngularJS and JQuery -->
     <script src='js/follows-timeline-for-twitch.js'></script>
+    <!-- Async Library: https://github.com/caolan/async -->
+    <script src='js/async.js'></script>
     <!-- Google Analytics -->
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -55,11 +57,11 @@
     var timeline_json = {
         "timeline":
         {
-            "headline":"{username}'s Twitch Follows Timeline".format({username: "tak_ada"}),
+            "headline":"{username}'s Twitch Follows Timeline".format({username: "Username"}),
             "type":"default",
-            "text":"<p>Following {user_follow_count} People</p>".format({user_follow_count: 236}),
+            "text":"<p>Following {user_follow_count} People</p>".format({user_follow_count: 777}),
             "asset": {
-                "media":"{user_logo}".format({user_logo: "http://static-cdn.jtvnw.net/jtv_user_pictures/tak_ada-profile_image-bbb30569f577053f-300x300.jpeg"}),
+                "media":"{user_logo}".format({user_logo: "https://s.jtvnw.net/jtv_user_pictures/hosted_images/GlitchIcon_WhiteonPurple.png"}),
                 "credit":"",
                 "caption":"Account created on <b>{user_creation_date}</b>".format({user_creation_date: "2014-05-10"})
             },
@@ -99,31 +101,63 @@
 
 
     $(document).ready(function() {
-        createStoryJS({
-            type:       "timeline",
-            width:      "1000",
-            height:     "400",
-            source:     timeline_json,
-            embed_id:   "timeline-embed"
-        });
+
     });
 
     var app = angular.module("App", []);
-    app.controller("Ctrl", function($scope, $http) {
-        $scope.url1 = "https://api.twitch.tv/kraken/channels/tak_ada/?callback=JSON_CALLBACK";
-        $scope.url2 = "https://api.twitch.tv/kraken/users/tak_ada/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
 
-        $http.jsonp($scope.url1).
-                success(function(data){
-                    console.log(data);
+    app.service('asyncService', function($http, $q) {
+        this.loadDataFromUrls = function(urls) {
+            console.log(urls);
+            var deferred = $q.defer();
+//            var urlCalls = [];
+//            angular.forEach(urls, function(url) {
+//                urlCalls.push($http.get(url.url));
+//            });
+//            // They may, in fact, all be done, but this
+//            // executes the callbacks in then, once they are
+//            // completely finished.
+//            $q.all(urlCalls)
+//                    .then(
+//                    function(results) {
+//                        deferred.resolve(
+//                            JSON.stringify(results))
+//                    },
+//                    function(errors) {
+//                        deferred.reject(errors);
+//                    },
+//                    function(updates) {
+//                        deferred.update(updates);
+//                    });
+//            return deferred.promise;
+        }
+
+    });
+
+    app.controller("Ctrl", function($scope, $http, $q) {
+        $scope.url1 = "https://api.twitch.tv/kraken/channels/balticfish/?callback=JSON_CALLBACK";
+        $scope.url2 = "https://api.twitch.tv/kraken/users/balticfish/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
+
+//        $http.jsonp($scope.url1).
+//                success(function(data){
+//                    console.log(data);
+//                });
+//        $http.jsonp($scope.url2).
+//                success(function(data){
+//                    console.log(data);
+//                    var date = new Date(data.follows[0].created_at);
+//                    console.log(date.getFullYear());
+//                    console.log($scope.isoDateToTimelineDate(data.follows[0].created_at));
+//                });
+
+        $scope.createPromise = function(url) {
+            var deferred = $q.defer();
+            $http.jsonp(url).
+                success(function(data) {
+                    deferred.resolve(data);
                 });
-        $http.jsonp($scope.url2).
-                success(function(data){
-                    console.log(data);
-                    var date = new Date(data.follows[0].created_at);
-                    console.log(date.getFullYear());
-                    console.log($scope.isoDateToTimelineDate(data.follows[0].created_at));
-                });
+            return deferred.promise;
+        };
 
         /**
          * input: "2014-05-16T08:01:41Z"
@@ -137,18 +171,131 @@
             return tempDate.getFullYear() + "," + tempDate.getMonth() + "," + tempDate.getDay();
         };
 
+        $scope.isoDateToDateString = function(isoStringDate) {
+            tempDate = new Date(isoStringDate);
+            return tempDate.getFullYear() + "-" + tempDate.getMonth() + "-" + tempDate.getDay();
+        };
+
         /**
          * Example inputs:
-         * url1: "https://api.twitch.tv/kraken/channels/tak_ada/?callback=JSON_CALLBACK"
-         * ir;2: "https://api.twitch.tv/kraken/users/tak_ada/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK"
+         * url_user: "https://api.twitch.tv/kraken/channels/gerrick1/?callback=JSON_CALLBACK"
+         * url_follows: "https://api.twitch.tv/kraken/users/gerrick1/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK"
          *
-         * @param url1
-         * @param url2
+         * output:
+         * Json that works with TimelineJS
+         *
+         * @param url_user
+         * @param url_follows
          */
-        $scope.twitchJsonToTimelineJson = function(url1, url2) {
+        $scope.twitchJsonToTimelineJson = function(url_user, url_follows) {
+            var json_data = {
+                user: null,
+                follows: null
+            };
+            var user_data = {
+                user_name: null,
+                user_follow_count: null,
+                user_logo: null,
+                user_creation_date: null
+            }
+
+            var stream_data = {
+                stream_follow_date: null,
+                twitch_streamer_name: null,
+                stream_url: null, last_played: "N/A", follower_count: null,
+                stream_logo: null,
+            }
+
+            var timeline_json = null;
+
+            var promises = [];
+            promises.push($scope.createPromise(url_user));
+            promises.push($scope.createPromise(url_follows));
+
+            $q.all(promises).then(
+                function(data) {
+                    json_data.user = data[0];
+                    json_data.follows = data[1].follows;
+
+                }
+            ).finally(function() {
+                console.log(json_data);
+
+                user_data.user_name = json_data.user.display_name;
+                user_data.user_follow_count = json_data.follows.length;
+                user_data.user_logo = json_data.user.logo
+                user_data.user_creation_date = $scope.isoDateToDateString(json_data.user.created_at);
+
+                timeline_json = createTimelineJsonObject(user_data);
+
+                console.log(timeline_json);
+
+                for (var i = 0; i < json_data.follows.length; i++) {
+                    stream_data.stream_follow_date = json_data.follows[i].created_at;
+                    stream_data.twitch_streamer_name = json_data.follows[i].channel.display_name;
+                    stream_data.stream_url = json_data.follows[i].channel.url;
+                    stream_data.last_played = json_data.follows[i].channel.game;
+                    stream_data.follower_count = json_data.follows[i].channel.followers;
+                    stream_data.stream_logo = json_data.follows[i].channel.logo;
+
+
+//                    console.log(stream_data);
+
+                    timeline_json.timeline.date.push(createTimelineDateJsonObject(stream_data));
+                }
+
+                console.log(timeline_json);
+
+                createStoryJS({
+                    type:       "timeline",
+                    width:      "1000",
+                    height:     "400",
+                    source:     timeline_json,
+                    embed_id:   "timeline-embed"
+                });
+
+            });
+
+            function createTimelineJsonObject(d) {
+                return {
+                    "timeline": {
+                        "headline": "{username}'s Twitch Follows Timeline".format({username: d.user_name}),
+                        "type": "default",
+                        "text": "<p>Following {user_follow_count} People</p>".format({user_follow_count: d.user_follow_count}),
+                        "asset": {
+                            "media": "{user_logo}".format({user_logo: d.user_logo}),
+                            "credit": "",
+                            "caption": "Account created on <b>{user_creation_date}</b>".format({user_creation_date: d.user_creation_date})
+                        },
+                        "date": []
+                    }
+                }
+            }
+
+            function createTimelineDateJsonObject(d) {
+                return {
+                    "startDate":"{stream_follow_date}".format({stream_follow_date: d.stream_follow_date}),
+                    "endDate":"{stream_follow_date}".format({stream_follow_date: d.stream_follow_date}),
+                    "headline":"{twitch_streamer_name}".format({twitch_streamer_name: d.twitch_streamer_name}),
+                    "text":"<b><a href=\"{stream_url}\">{stream_url}</a></b><br />Last Played: <b>{stream_last_played}</b><br />Follower Count: <b>{follower_count}</b>"
+                            .format({stream_url: d.stream_url, stream_last_played: d.last_played, follower_count: d.follower_count}),
+                    "tag":"", // This is optional.
+                    "classname":"", // This is optional.
+                    "asset": {
+                        "media":"{stream_logo}".format({stream_logo: d.stream_logo}),
+                        "thumbnail":"{stream_logo}".format({stream_logo: d.stream_logo}),
+                        "credit":"Followed on <b>{stream_follow_date}</b>".format({stream_follow_date: d.stream_follow_date}),
+                        "caption":"" // This is not needed.
+                    }
+                }
+            }
 
         };
+
+        $scope.twitchJsonToTimelineJson($scope.url1, $scope.url2);
     });
+
+
 
 
 </script>
