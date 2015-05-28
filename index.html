@@ -9,32 +9,41 @@
     <meta name='author' content='takada'>
 
     <!-- CSS -->
-    <link href="css/main.css" rel="stylesheet" type="text/css">
-    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <!--<link href="css/main.css" rel="stylesheet" type="text/css">-->
+
     <!-- Jquery -->
-    <script src='js/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+
     <!-- AngularJS -->
-    <script src='js/angular.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js'></script>
+
     <!-- Bootstrap -->
-    <script src='js/bootstrap.min.js'></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
     <!-- TimelineJS -->
-    <script src='js/timeline-min.js'></script>
-    <script src='js/storyjs-embed.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/timelinejs/2.36.0/js/timeline-min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/timelinejs/2.36.0/js/storyjs-embed.js'></script>
+
     <!-- follows-timeline-for-twitch.js must come after AngularJS and JQuery -->
     <script src='js/follows-timeline-for-twitch.js'></script>
-    <!-- Async Library: https://github.com/caolan/async -->
-    <script src='js/async.js'></script>
     <!-- Google Analytics -->
-    <script>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    <!--<script>-->
+        <!--(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){-->
+            <!--(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),-->
+                <!--m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)-->
+        <!--})(window,document,'script','//www.google-analytics.com/analytics.js','ga');-->
 
-        ga('create', 'UA-55847588-2', 'auto');
-        ga('send', 'pageview');
-    </script>
+        <!--ga('create', 'UA-55847588-2', 'auto');-->
+        <!--ga('send', 'pageview');-->
+    <!--</script>-->
 
+    <!--<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">-->
+    <!--<script src='js/timeline-min.js'></script>-->
+    <!--<script src='js/storyjs-embed.js'></script>-->
+    <!--<script src='js/bootstrap.min.js'></script>-->
+    <!--<script src='js/angular.min.js'></script>-->
+    <!--<script src='js/jquery.min.js'></script>-->
 </head>
 <script>
     /**
@@ -56,37 +65,9 @@
 
     var app = angular.module("App", []);
 
-    app.service('asyncService', function($http, $q) {
-        this.loadDataFromUrls = function(urls) {
-            console.log(urls);
-            var deferred = $q.defer();
-//            var urlCalls = [];
-//            angular.forEach(urls, function(url) {
-//                urlCalls.push($http.get(url.url));
-//            });
-//            // They may, in fact, all be done, but this
-//            // executes the callbacks in then, once they are
-//            // completely finished.
-//            $q.all(urlCalls)
-//                    .then(
-//                    function(results) {
-//                        deferred.resolve(
-//                            JSON.stringify(results))
-//                    },
-//                    function(errors) {
-//                        deferred.reject(errors);
-//                    },
-//                    function(updates) {
-//                        deferred.update(updates);
-//                    });
-//            return deferred.promise;
-        }
-
-    });
-
     app.controller("Ctrl", function($scope, $http, $q) {
-        $scope.url1 = "https://api.twitch.tv/kraken/channels/theclaude/?callback=JSON_CALLBACK";
-        $scope.url2 = "https://api.twitch.tv/kraken/users/theclaude/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
+        $scope.url1 = "https://api.twitch.tv/kraken/channels/tak_ada/?callback=JSON_CALLBACK";
+        $scope.url2 = "https://api.twitch.tv/kraken/users/tak_ada/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK";
 
         $scope.createPromise = function(url) {
             var deferred = $q.defer();
@@ -116,8 +97,8 @@
 
         /**
          * Example inputs:
-         * url_user: "https://api.twitch.tv/kraken/channels/gerrick1/?callback=JSON_CALLBACK"
-         * url_follows: "https://api.twitch.tv/kraken/users/gerrick1/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK"
+         * url_user: "https://api.twitch.tv/kraken/channels/enkerblues/?callback=JSON_CALLBACK"
+         * url_follows: "https://api.twitch.tv/kraken/users/enkerblues/follows/channels?direction=ASC&limit=1000&offset=0&sortby=created_at&callback=JSON_CALLBACK"
          *
          * output:
          * Json that works with TimelineJS
@@ -230,9 +211,6 @@
         // Main
         $scope.twitchJsonToTimelineJson($scope.url1, $scope.url2);
     });
-
-
-
 
 </script>
 <body>
