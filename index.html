@@ -13,7 +13,7 @@
     <!--<link href="css/main.css" rel="stylesheet" type="text/css">-->
 
     <!-- Jquery -->
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+    <script src='https://code.jquery.com/jquery-1.11.3.min.js'></script>
 
     <!-- AngularJS -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js'></script>
@@ -21,9 +21,8 @@
     <!-- Bootstrap -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
-    <!-- TimelineJS -->
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/timelinejs/2.36.0/js/timeline-min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/timelinejs/2.36.0/js/storyjs-embed.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/timelinejs/2.36.0/js/storyjs-embed.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/timelinejs/2.36.0/js/timeline-min.js"></script>
 
     <!-- follows-timeline-for-twitch.js must come after AngularJS and JQuery -->
     <script src='js/follows-timeline-for-twitch.js'></script>
@@ -106,7 +105,7 @@
          * @param url_user
          * @param url_follows
          */
-        $scope.twitchJsonToTimelineJson = function(url_user, url_follows) {
+        $scope.twitchJsonToTimelineJson = function(url_user, url_follows, callback) {
             var json_data = {
                 user: null,
                 follows: null
@@ -162,13 +161,7 @@
 
                 console.log(timeline_json);
 
-                createStoryJS({
-                    type:       "timeline",
-                    width:      "1000",
-                    height:     "400",
-                    source:     timeline_json,
-                    embed_id:   "timeline-embed"
-                });
+                callback(timeline_json);
 
             });
 
@@ -185,7 +178,7 @@
                         },
                         "date": []
                     }
-                }
+                };
             }
 
             function createTimelineDateJsonObject(d) {
@@ -203,14 +196,59 @@
                         "credit":"Followed on <b>{stream_follow_date}</b>".format({stream_follow_date: d.stream_follow_date}),
                         "caption":"" // This is not needed.
                     }
-                }
+                };
             }
 
         };
 
-        // Main
-        $scope.twitchJsonToTimelineJson($scope.url1, $scope.url2);
+
+
+        angular.element(document).ready(function () {
+            console.log('Hello World');
+            // Main
+            $scope.twitchJsonToTimelineJson($scope.url1, $scope.url2, function(timeline_json) {
+//                console.dir(JSON.stringify(timeline_json.timeline));
+                console.log("bad");
+                createStoryJS({
+                    type: "timeline",
+                    width: "100%",
+                    height: "600",
+                    source: timeline_json,
+                    embed_id: "timeline-embed"
+                });
+
+            });
+
+//            createStoryJS({
+//                type: "timeline",
+//                width: "100%",
+//                height: "600",
+//                source: "example.jsonp",
+//                embed_id: "timeline-embed"
+//            });
+
+
+//            createStoryJS({
+//                type: "timeline",
+//                width: "100%",
+//                height: "600",
+//                debug: true,
+//                source: timeline_json,
+//                embed_id: "timeline-embed"
+//            });
+
+//            createStoryJS({
+//                type: "timeline",
+//                width: "100%",
+//                height: "600",
+//                source: "model.jsonp",
+//                embed_id: "timeline-embed"
+//            });
+        });
+
     });
+
+
 
 </script>
 <body>
